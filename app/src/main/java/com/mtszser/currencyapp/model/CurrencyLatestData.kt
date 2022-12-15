@@ -12,3 +12,11 @@ data class CurrencyLatestData(
     @field:Json(name = "rates") val rates: Map<String, Double>,
     @field:Json(name = "success") val success: Boolean
 )
+
+fun CurrencyLatestData.mapToCurrencyItemList() = CurrencyItemsView(
+    baseCurrency = this.base,
+    dateOfExchangeRate = this.date,
+    currencyRates = this.rates,
+    apiSuccess = this.success
+
+)

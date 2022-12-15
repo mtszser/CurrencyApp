@@ -31,10 +31,12 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/currencyRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical"
-            android:scrollbarFadeDuration="300">
+            android:scrollbarFadeDuration="300"
+            tools:listitem="@layout/currency_item_rv">
 
         </androidx.recyclerview.widget.RecyclerView>
 

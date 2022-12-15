@@ -5,7 +5,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mtszser.currencyapp.model.CurrencyItemsView
 import com.mtszser.currencyapp.model.CurrencyLatestData
+import com.mtszser.currencyapp.model.mapToCurrencyItemList
 import com.mtszser.currencyapp.repository.CurrencyRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -13,6 +15,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.days
 
 @HiltViewModel
 class CurrencyViewModel @Inject constructor(private val currencyRepository: CurrencyRepository): ViewModel() {
@@ -28,8 +31,12 @@ class CurrencyViewModel @Inject constructor(private val currencyRepository: Curr
 
     private fun loadCurrencies() {
         viewModelScope.launch {
+            val currentDay = currencyRepository.getCurrenciesResponse(date = getDate()).mapToCurrencyItemList()
             _currencyState.value = _currencyState.value?.copy(
-                currencyResponse = currencyRepository.getCurrenciesResponse(getDate())
+                currencyItem = currencyRepository.getCurrenciesResponse(getDate()).mapToCurrencyItemList(),
+                currencyList = listOf(currencyRepository.getCurrenciesResponse(getDate()).mapToCurrencyItemList()),
+                date = currentDay.dateOfExchangeRate
+
             )
 
 
@@ -39,8 +46,12 @@ class CurrencyViewModel @Inject constructor(private val currencyRepository: Curr
     private fun getDate(): String {
 
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        Log.d("date", "${LocalDateTime.now().format(formatter)}")
         return LocalDateTime.now().format(formatter)
+    }
+
+    private fun getPreviousDay(previousDay: Long): String {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        return LocalDateTime.now().minusDays(previousDay).format(formatter)
     }
 
 
@@ -48,7 +59,9 @@ class CurrencyViewModel @Inject constructor(private val currencyRepository: Curr
 
 data class CurrencyStateData(
 
-    val currencyResponse: CurrencyLatestData? = null,
+    val currencyList: List<CurrencyItemsView> = listOf(),
+    val currencyItem: CurrencyItemsView? = null,
     val currencyResponseErrorMessage: String = "",
+    val date: String = "",
     val listOfCurrencies: List<CurrencyLatestData> = listOf(),
 )

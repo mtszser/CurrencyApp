@@ -5,10 +5,12 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.lifecycle.LifecycleOwner
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.mtszser.currencyapp.api.ApiClient
 import com.mtszser.currencyapp.databinding.ActivityMainBinding
 import com.mtszser.currencyapp.model.CurrencyLatestData
 import com.mtszser.currencyapp.util.Const
+import com.mtszser.currencyapp.view.adapters.CurrencyAdapter
 import com.mtszser.currencyapp.viewmodel.CurrencyViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -24,10 +26,13 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val currencyViewModel: CurrencyViewModel by viewModels()
-    private lateinit var apiClient: ApiClient
+    private lateinit var currencyAdapter: CurrencyAdapter
 
     private val textView
     get() = binding.textView
+
+    private val currencyRecyclerView
+    get() = binding.currencyRecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,9 +45,13 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun loadCurrencyData() {
+
+        currencyAdapter = CurrencyAdapter()
+        currencyRecyclerView.layoutManager = LinearLayoutManager(this)
+        currencyRecyclerView.adapter = currencyAdapter
+
         currencyViewModel.currencyState.observe(this) { currencyState ->
-            val response = currencyState.currencyResponse
-            Log.d("response", "$response")
+            currencyAdapter.submitList(currencyState.currencyList)
         }
 
         }
