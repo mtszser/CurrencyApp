@@ -35,8 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical"
-            android:scrollbarFadeDuration="300"
-            tools:listitem="@layout/currency_item_rv">
+            android:scrollbarFadeDuration="300">
 
         </androidx.recyclerview.widget.RecyclerView>
 

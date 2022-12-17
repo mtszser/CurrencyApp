@@ -11,3 +11,4 @@ data class CurrencyItem(
     val currencySymbol: String,
     val currencyRate: Double,
 )
+

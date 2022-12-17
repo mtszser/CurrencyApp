@@ -1,22 +1,16 @@
 package com.mtszser.currencyapp.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mtszser.currencyapp.model.CurrencyItem
-import com.mtszser.currencyapp.model.CurrencyItemsView
-import com.mtszser.currencyapp.model.CurrencyLatestData
-import com.mtszser.currencyapp.model.mapToCurrencyItemList
+import com.mtszser.currencyapp.model.*
 import com.mtszser.currencyapp.repository.CurrencyRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.days
 
 @HiltViewModel
 class CurrencyViewModel @Inject constructor(private val currencyRepository: CurrencyRepository): ViewModel() {
@@ -34,18 +28,23 @@ class CurrencyViewModel @Inject constructor(private val currencyRepository: Curr
         viewModelScope.launch {
             val currencyList= currencyRepository.getCurrenciesResponse(date = getDate()).mapToCurrencyItemList()
             val map: MutableMap<String, Double> = HashMap(currencyList.currencyRates)
+            val listOfItems = map.entries.map { CurrencyModel.CurrencyItems(symbol = it.key, rate = it.value) }
+            listOfItems.forEach {
+                _currencyState.value = _currencyState.value?.copy(
+                currModel = listOf(CurrencyModel.CurrencyDayHeader(date = currencyList.dateOfExchangeRate), CurrencyModel.CurrencyItems(symbol = it.symbol, rate = it.rate))
+            ) }
+
 
 
             _currencyState.value = _currencyState.value?.copy(
-                date = currencyList.dateOfExchangeRate,
                 currencyMapList = currencyList.currencyRates,
-                currencyListItem = map.entries.map { CurrencyItem(currencySymbol = it.key, currencyRate = it.value) }
-
-            )
-
-
+                currencyListItem = map.entries.map { CurrencyItem(currencySymbol = it.key, currencyRate = it.value) },
+                dateOfExchange = currencyList.dateOfExchangeRate,
+                currencyItems = map.entries.map { CurrencyModel.CurrencyItems(symbol = it.key, rate = it.value) })
         }
     }
+
+
 
     private fun getDate(): String {
 
@@ -62,11 +61,9 @@ class CurrencyViewModel @Inject constructor(private val currencyRepository: Curr
 }
 
 data class CurrencyStateData(
-
+    val dateOfExchange: String = "",
+    val currencyItems: List<CurrencyModel.CurrencyItems> = listOf(),
+    val currModel: List<CurrencyModel> = listOf(),
     val currencyListItem: List<CurrencyItem> = listOf(),
     val currencyMapList: Map<String, Double> = mapOf(),
-    val currencyList: List<CurrencyItemsView> = listOf(),
-    val currencyResponseErrorMessage: String = "",
-    val date: String = "",
-    val listOfCurrencies: List<CurrencyLatestData> = listOf(),
 )

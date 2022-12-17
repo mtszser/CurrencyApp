@@ -3,44 +3,77 @@ package com.mtszser.currencyapp.view.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.mtszser.currencyapp.R
-import com.mtszser.currencyapp.databinding.CurrencyItemRvBinding
-import com.mtszser.currencyapp.model.CurrencyItem
-import com.mtszser.currencyapp.model.CurrencyItemsView
 
-class CurrencyAdapter(): ListAdapter<CurrencyItem, CurrencyAdapter.ViewCurrencyHolder>(ListDiffCallBack) {
+import com.mtszser.currencyapp.model.CurrencyModel
+//(private val onItemClicked: (CurrencyModel.CurrencyItems) -> Unit)
+class CurrencyAdapter()
+    :RecyclerView.Adapter< CurrencyAdapter.ViewCurrencyHolder>() {
 
+    private var currencyList = mutableListOf<CurrencyModel>()
 
-    inner class ViewCurrencyHolder(view: View): RecyclerView.ViewHolder(view) {
-
-        private var binding = CurrencyItemRvBinding.bind(view)
-
-        val currencySymbolAndRate = binding.currencySymbolAndRate
-        val currencyDate = binding.currencyDate
+    companion object {
+        const val VIEW_HEADER = 0
+        const val VIEW_ITEM = 1
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewCurrencyHolder =
-        ViewCurrencyHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.currency_item_rv, parent, false)
-    )
+    class ViewCurrencyHolder(view: View): RecyclerView.ViewHolder(view) {
 
+        private fun bindHeader(currencyData: CurrencyModel.CurrencyDayHeader) {
+            val currencyDate: TextView = itemView.findViewById(R.id.currencyDate)
+            currencyDate.text = currencyData.date
+        }
 
+        private fun bindItem(currencyData: CurrencyModel.CurrencyItems) {
+            val currencySymbol: TextView = itemView.findViewById(R.id.currencyExchangeRate)
+            currencySymbol.text = "${currencyData.symbol} ${currencyData.rate}"
+
+        }
+
+        fun bindData(currencyData: CurrencyModel){
+            when(currencyData) {
+                is CurrencyModel.CurrencyDayHeader -> bindHeader(currencyData)
+                is CurrencyModel.CurrencyItems -> bindItem(currencyData)
+            }
+        }
+
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewCurrencyHolder {
+        val layout = when(viewType) {
+            VIEW_HEADER -> R.layout.currency_item_rv
+            VIEW_ITEM -> R.layout.currency_item_rv_child
+            else -> 0
+        }
+        return ViewCurrencyHolder(LayoutInflater.from(parent.context).inflate(layout, parent, false))
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return when(currencyList[position]){
+            is CurrencyModel.CurrencyItems -> VIEW_ITEM
+            is CurrencyModel.CurrencyDayHeader -> VIEW_HEADER
+        }
+    }
+
+    override fun getItemCount(): Int = currencyList.size
+
+    fun setCurrencyItems(currency: List<CurrencyModel>) {
+        currencyList.addAll(currency)
+
+    }
 
 
     override fun onBindViewHolder(holder: ViewCurrencyHolder, position: Int) {
-        val currencyItem = getItem(position)
-        holder.currencySymbolAndRate.text = currencyItem.currencyRate.toString()
-        holder.currencyDate.text = currencyItem.currencySymbol
+        holder.bindData(currencyList[position])
     }
 }
 
-object ListDiffCallBack: DiffUtil.ItemCallback<CurrencyItem>() {
-    override fun areItemsTheSame(oldItem: CurrencyItem, newItem: CurrencyItem): Boolean
-            = oldItem.currencySymbol == newItem.currencySymbol
-
-    override fun areContentsTheSame(oldItem: CurrencyItem, newItem: CurrencyItem): Boolean
-            = oldItem == newItem
-}
+//object ListDiffCallBack: DiffUtil.ItemCallback<CurrencyItem>() {
+//    override fun areItemsTheSame(oldItem: CurrencyItem, newItem: CurrencyItem): Boolean
+//            = oldItem.currencySymbol == newItem.currencySymbol
+//
+//    override fun areContentsTheSame(oldItem: CurrencyItem, newItem: CurrencyItem): Boolean
+//            = oldItem == newItem
+//}

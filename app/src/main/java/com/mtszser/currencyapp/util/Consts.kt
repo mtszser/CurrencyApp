@@ -9,3 +9,4 @@ class Const {
         const val BASE_CURRENCY = "EUR"
     }
 }
+//const val API_KEY = "NexovAbgRXYOcAq8hFjn4Dg5rgvpQJQE"

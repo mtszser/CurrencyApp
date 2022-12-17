@@ -11,6 +11,7 @@ import com.mtszser.currencyapp.databinding.ActivityMainBinding
 import com.mtszser.currencyapp.model.CurrencyItem
 import com.mtszser.currencyapp.model.CurrencyItemsView
 import com.mtszser.currencyapp.model.CurrencyLatestData
+import com.mtszser.currencyapp.model.CurrencyModel
 import com.mtszser.currencyapp.util.Const
 import com.mtszser.currencyapp.view.adapters.CurrencyAdapter
 import com.mtszser.currencyapp.viewmodel.CurrencyViewModel
@@ -49,12 +50,15 @@ class MainActivity : AppCompatActivity() {
     private fun loadCurrencyData() {
 
         currencyAdapter = CurrencyAdapter()
-        currencyRecyclerView.layoutManager = LinearLayoutManager(this)
+       currencyRecyclerView.layoutManager = LinearLayoutManager(this)
         currencyRecyclerView.adapter = currencyAdapter
 
         currencyViewModel.currencyState.observe(this) { currencyState ->
             Log.d("lista map", "${currencyState.currencyListItem}")
-            currencyAdapter.submitList(currencyState.currencyListItem)
+            Log.d("date", currencyState.dateOfExchange)
+            Log.d("model", currencyState.currModel.toString())
+            currencyAdapter.setCurrencyItems(currency = currencyState.currModel)
+
         }
     }
 }
