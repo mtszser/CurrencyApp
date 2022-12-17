@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mtszser.currencyapp.model.CurrencyItem
 import com.mtszser.currencyapp.model.CurrencyItemsView
 import com.mtszser.currencyapp.model.CurrencyLatestData
 import com.mtszser.currencyapp.model.mapToCurrencyItemList
@@ -31,11 +32,14 @@ class CurrencyViewModel @Inject constructor(private val currencyRepository: Curr
 
     private fun loadCurrencies() {
         viewModelScope.launch {
-            val currentDay = currencyRepository.getCurrenciesResponse(date = getDate()).mapToCurrencyItemList()
+            val currencyList= currencyRepository.getCurrenciesResponse(date = getDate()).mapToCurrencyItemList()
+            val map: MutableMap<String, Double> = HashMap(currencyList.currencyRates)
+
+
             _currencyState.value = _currencyState.value?.copy(
-                currencyItem = currencyRepository.getCurrenciesResponse(getDate()).mapToCurrencyItemList(),
-                currencyList = listOf(currencyRepository.getCurrenciesResponse(getDate()).mapToCurrencyItemList()),
-                date = currentDay.dateOfExchangeRate
+                date = currencyList.dateOfExchangeRate,
+                currencyMapList = currencyList.currencyRates,
+                currencyListItem = map.entries.map { CurrencyItem(currencySymbol = it.key, currencyRate = it.value) }
 
             )
 
@@ -59,8 +63,9 @@ class CurrencyViewModel @Inject constructor(private val currencyRepository: Curr
 
 data class CurrencyStateData(
 
+    val currencyListItem: List<CurrencyItem> = listOf(),
+    val currencyMapList: Map<String, Double> = mapOf(),
     val currencyList: List<CurrencyItemsView> = listOf(),
-    val currencyItem: CurrencyItemsView? = null,
     val currencyResponseErrorMessage: String = "",
     val date: String = "",
     val listOfCurrencies: List<CurrencyLatestData> = listOf(),

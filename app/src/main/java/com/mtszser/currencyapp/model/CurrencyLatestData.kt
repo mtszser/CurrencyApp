@@ -17,6 +17,6 @@ fun CurrencyLatestData.mapToCurrencyItemList() = CurrencyItemsView(
     baseCurrency = this.base,
     dateOfExchangeRate = this.date,
     currencyRates = this.rates,
-    apiSuccess = this.success
+    apiSuccess = this.success,
 
 )

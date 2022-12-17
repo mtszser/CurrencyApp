@@ -8,6 +8,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mtszser.currencyapp.api.ApiClient
 import com.mtszser.currencyapp.databinding.ActivityMainBinding
+import com.mtszser.currencyapp.model.CurrencyItem
+import com.mtszser.currencyapp.model.CurrencyItemsView
 import com.mtszser.currencyapp.model.CurrencyLatestData
 import com.mtszser.currencyapp.util.Const
 import com.mtszser.currencyapp.view.adapters.CurrencyAdapter
@@ -51,8 +53,8 @@ class MainActivity : AppCompatActivity() {
         currencyRecyclerView.adapter = currencyAdapter
 
         currencyViewModel.currencyState.observe(this) { currencyState ->
-            currencyAdapter.submitList(currencyState.currencyList)
-        }
-
+            Log.d("lista map", "${currencyState.currencyListItem}")
+            currencyAdapter.submitList(currencyState.currencyListItem)
         }
     }
+}
