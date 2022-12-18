@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CurrencyApp</string>
+    <string name="dzien_2022_12_18">Dzień 2022-12-18</string>
+    <string name="usd_0_19">USD: 0.19</string>
 </resources>

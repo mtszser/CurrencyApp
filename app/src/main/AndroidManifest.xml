@@ -17,6 +17,9 @@
         android:theme="@style/Theme.CurrencyApp"
         tools:targetApi="32">
         <activity
+            android:name=".SelectedItem"
+            android:exported="false" />
+        <activity
             android:name=".view.MainActivity"
             android:exported="true">
             <intent-filter>

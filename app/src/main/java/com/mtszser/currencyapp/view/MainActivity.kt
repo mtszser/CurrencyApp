@@ -1,28 +1,23 @@
 package com.mtszser.currencyapp.view
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.mtszser.currencyapp.api.ApiClient
+import androidx.recyclerview.widget.RecyclerView
 import com.mtszser.currencyapp.databinding.ActivityMainBinding
-import com.mtszser.currencyapp.model.CurrencyItem
-import com.mtszser.currencyapp.model.CurrencyItemsView
-import com.mtszser.currencyapp.model.CurrencyLatestData
-import com.mtszser.currencyapp.model.CurrencyModel
-import com.mtszser.currencyapp.util.Const
 import com.mtszser.currencyapp.view.adapters.CurrencyAdapter
 import com.mtszser.currencyapp.viewmodel.CurrencyViewModel
+import com.mtszser.currencyapp.viewmodel.NavigationEvent
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import kotlin.math.log
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -31,11 +26,9 @@ class MainActivity : AppCompatActivity() {
     private val currencyViewModel: CurrencyViewModel by viewModels()
     private lateinit var currencyAdapter: CurrencyAdapter
 
-    private val textView
-    get() = binding.textView
 
     private val currencyRecyclerView
-    get() = binding.currencyRecyclerView
+        get() = binding.currencyRecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,19 +39,39 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     private fun loadCurrencyData() {
-
-        currencyAdapter = CurrencyAdapter()
-       currencyRecyclerView.layoutManager = LinearLayoutManager(this)
+        currencyAdapter = CurrencyAdapter(
+            onItemClicked = currencyViewModel::getItemDetails
+        )
+        currencyRecyclerView.layoutManager = LinearLayoutManager(this)
         currencyRecyclerView.adapter = currencyAdapter
 
+        lifecycleScope.launch{
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                currencyViewModel.navigation.collect { event ->
+                    when(event){
+                        NavigationEvent.ItemDetails -> {}
+                    }
+                }
+            }
+        }
+
         currencyViewModel.currencyState.observe(this) { currencyState ->
-            Log.d("lista map", "${currencyState.currencyListItem}")
-            Log.d("date", currencyState.dateOfExchange)
-            Log.d("model", currencyState.currModel.toString())
-            currencyAdapter.setCurrencyItems(currency = currencyState.currModel)
+            currencyAdapter.submitList(currencyState.currencies)
+            Log.d("dupa", "${currencyState.currencyItem}")
 
         }
+
+        currencyRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val linearLayoutManager = recyclerView.layoutManager as LinearLayoutManager?
+                if(linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == currencyAdapter.itemCount-1) {
+                    currencyViewModel.loadCurrencies()
+
+                }
+            }
+        })
     }
+
 }

@@ -13,10 +13,8 @@ data class CurrencyLatestData(
     @field:Json(name = "success") val success: Boolean
 )
 
-fun CurrencyLatestData.mapToCurrencyItemList() = CurrencyItemsView(
-    baseCurrency = this.base,
-    dateOfExchangeRate = this.date,
-    currencyRates = this.rates,
-    apiSuccess = this.success,
+fun CurrencyLatestData.mapToCurrencyItemList(currentList: List<CurrencyItem>): List<CurrencyItem> =
+    currentList + listOf(CurrencyItem(label = date, type = Types.Header)) + rates.flatMap { (key, value) ->
+        listOf(CurrencyItem(label = key, value = value.toString(), type = Types.Currency))
+    }
 
-)

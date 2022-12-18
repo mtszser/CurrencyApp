@@ -1,14 +1,17 @@
 package com.mtszser.currencyapp.model
 
-data class CurrencyItemsView(
-    val baseCurrency: String,
-    val dateOfExchangeRate: String,
-    val currencyRates: Map<String, Double>,
-    val apiSuccess: Boolean,
-)
+import java.io.Serializable
+import java.util.*
 
 data class CurrencyItem(
-    val currencySymbol: String,
-    val currencyRate: Double,
-)
+    val id: String = UUID.randomUUID().toString(),
+    val label: String,
+    val value: String? = null,
+    val type: Types,
+): Serializable
+
+enum class Types {
+    Header,
+    Currency,
+}
 

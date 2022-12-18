@@ -7,11 +7,17 @@ import javax.inject.Inject
 
 class CurrencyRepository @Inject constructor(private val apiService: ApiService) {
 
-    suspend fun getCurrenciesResponse(date: String): CurrencyLatestData {
+    suspend fun getCurrenciesResponse(date: String): NetworkEvent<CurrencyLatestData> {
         val response = apiService.getDateCurrencies(date = date)
-        if (response.isSuccessful) {
-            return response.body()!!
+        return if (response.isSuccessful) {
+            NetworkEvent.Success(data = response.body())
+        } else {
+            NetworkEvent.Error(message = response.message())
         }
-        return response.body()!!
+    }
+
+    sealed class NetworkEvent<out T : Any> {
+        data class Success<out T : Any>(val data: T?) : NetworkEvent<T>()
+        data class Error(val message: String) : NetworkEvent<Nothing>()
     }
 }
