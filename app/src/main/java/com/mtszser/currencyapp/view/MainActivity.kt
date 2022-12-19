@@ -58,7 +58,6 @@ class MainActivity : AppCompatActivity() {
 
         currencyViewModel.currencyState.observe(this) { currencyState ->
             currencyAdapter.submitList(currencyState.currencies)
-            Log.d("dupa", "${currencyState.currencyItem}")
 
         }
 
